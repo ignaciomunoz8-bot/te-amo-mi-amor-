@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Para Danae, con todo mi amor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Lora:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg1:#ffe3ec;--bg2:#ffc9dc;--ink:#5a1633;--soft:#8a3a5c;--card:rgba(255,255,255,.62);--btn:#e0457b;--btnink:#fff}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg1:#2a0f2e;--bg2:#4a1740;--ink:#ffe9f1;--soft:#ffc2d9;--card:rgba(40,12,44,.55);--btn:#ff6b9d;--btnink:#3a0f2c}}
+:root[data-theme="dark"]{--bg1:#2a0f2e;--bg2:#4a1740;--ink:#ffe9f1;--soft:#ffc2d9;--card:rgba(40,12,44,.55);--btn:#ff6b9d;--btnink:#3a0f2c}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:linear-gradient(180deg,var(--bg1),var(--bg2));color:var(--ink);font-family:Lora,Georgia,serif;overflow:hidden;position:relative}
+canvas{position:fixed;inset:0;width:100%;height:100%;pointer-events:none}
+main{position:relative;z-index:2;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:7vh 20px 0;text-align:center}
+h1{font-family:'Dancing Script',cursive;font-size:clamp(3.2rem,15vw,6.5rem);margin:0;line-height:1;animation:pop 1.6s cubic-bezier(.2,1.4,.4,1) both}
+.sub{color:var(--soft);font-style:italic;margin:.4rem 0 1.4rem;animation:fade 2s .8s both}
+button{font:inherit;font-size:1.1rem;background:var(--btn);color:var(--btnink);border:0;border-radius:999px;padding:.85rem 1.8rem;cursor:pointer;box-shadow:0 6px 22px rgba(224,69,123,.4);animation:beat 1.6s 2s infinite}
+button:focus-visible{outline:3px solid var(--ink);outline-offset:4px}
+.letter{max-width:520px;max-height:48vh;overflow-y:auto;background:var(--card);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:24px;padding:20px 24px;display:none}
+.letter p{margin:.7rem 0;font-size:clamp(1.05rem,4.4vw,1.3rem);line-height:1.55;opacity:0;transform:translateY(10px);transition:opacity 1.4s,transform 1.4s}
+.letter p.on{opacity:1;transform:none}
+.letter .big{font-family:'Dancing Script',cursive;font-size:clamp(1.8rem,8vw,2.6rem);line-height:1.2}
+#garden{position:fixed;left:0;right:0;bottom:0;height:34vh;z-index:1;display:flex;align-items:flex-end;justify-content:space-around;padding-bottom:env(safe-area-inset-bottom,0px);pointer-events:none}
+.fl{transform-origin:50% 100%;animation:grow 2.2s cubic-bezier(.2,1.3,.4,1) both,sway 4s ease-in-out infinite;height:auto}
+.fl .head{transform-origin:50% 50%;animation:spin 24s linear infinite}
+@keyframes grow{from{transform:scale(0)}to{transform:scale(1)}}
+@keyframes sway{0%,100%{rotate:-4deg}50%{rotate:4deg}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pop{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:none}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes beat{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.letter p{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+<canvas id="c" aria-hidden="true"></canvas>
+<main>
+  <h1>Danae</h1>
+  <p class="sub" id="sub">Hice esto con todo mi cariño, solo para ti</p>
+  <button id="open">Abrir mi carta 💌</button>
+  <section class="letter" id="letter" aria-live="polite">
+    <p class="big">Te amo muchísimo, Danae.</p>
+    <p>Siento que desde que te conoci soy alguien mejor y no el pesao que era antes agradezco eso amor, la verdad estos dias han sido dificiles y perdon por eso mi amor.</p>
+    <p>Tu sabes que yo sin ti no soy más que una persona triste, y gracias a ti soy el hombre que soy.</p>
+    <p>Estoy muy orgulloso de ti, de todo lo que haces y de la mujer increíble que eres, nunca dudes que siempre estare  contigo y que siempre estaremos juntos, usted va ser la madre de mis hijos.</p>
+    <p class="big">Eres mi vida entera. ❤️
+    Te amo❤️</p>
+  </section>
+</main>
+<div id="garden" aria-hidden="true"></div>
+<script>
+(function(){
+var cols=['#ff4d8d','#ffb400','#ff7a3d','#b45cff','#4db8ff','#ff5c5c','#ffd23f','#ff8fc7','#7be0a1'];
+var g=document.getElementById('garden');
+function flower(i,n){
+  var c=cols[i%cols.length],c2=cols[(i+4)%cols.length],p=5+(i%4)*2,s='';
+  for(var k=0;k<p;k++){s+='<ellipse cx="50" cy="26" rx="'+(9+(i%3)*2)+'" ry="20" fill="'+c+'" stroke="rgba(255,255,255,.35)" stroke-width="1" transform="rotate('+(k*360/p)+' 50 50)"/>';}
+  var h=70+(i*37)%70;
+  var el=document.createElement('div');
+  el.innerHTML='<svg class="fl" viewBox="0 0 100 '+(100+h)+'" width="'+(52+(i*13)%28)+'" style="animation-delay:'+(0.3+i*0.22)+'s,'+(i*0.4)+'s">'
+   +'<path d="M50 50 C 42 '+(50+h*0.4)+' 58 '+(50+h*0.7)+' 50 '+(100+h)+'" stroke="#3fae6a" stroke-width="4" fill="none" stroke-linecap="round"/>'
+   +'<path d="M50 '+(60+h*0.5)+' q-22 -6 -26 -24 q20 0 26 24z" fill="#4cc27a"/>'
+   +'<g class="head">'+s+'<circle cx="50" cy="50" r="10" fill="'+c2+'"/><circle cx="47" cy="47" r="3" fill="rgba(255,255,255,.55)"/></g></svg>';
+  return el.firstChild;
+}
+for(var i=0;i<9;i++)g.appendChild(flower(i));
+
+var cv=document.getElementById('c'),x=cv.getContext('2d'),W,H,dpr=Math.min(devicePixelRatio||1,2),items=[];
+function size(){W=innerWidth;H=innerHeight;cv.width=W*dpr;cv.height=H*dpr;x.setTransform(dpr,0,0,dpr,0,0)}
+size();addEventListener('resize',size);
+function heart(px,py,s,col,a,rot){
+  x.save();x.translate(px,py);x.rotate(rot);x.globalAlpha=a;x.fillStyle=col;x.beginPath();
+  x.moveTo(0,s*.3);x.bezierCurveTo(-s,-s*.5,-s*.5,-s*1.1,0,-s*.45);x.bezierCurveTo(s*.5,-s*1.1,s,-s*.5,0,s*.3);x.fill();x.restore();
+}
+function petal(px,py,s,col,a,rot){
+  x.save();x.translate(px,py);x.rotate(rot);x.globalAlpha=a;x.fillStyle=col;x.beginPath();x.ellipse(0,0,s*.5,s,0,0,7);x.fill();x.restore();
+}
+function spawn(burst,bx,by){
+  var heartP=Math.random()<.6;
+  items.push({h:heartP,x:burst?bx:Math.random()*W,y:burst?by:(heartP?H+20:-20),s:6+Math.random()*(heartP?14:7),
+   vx:burst?(Math.random()-.5)*5:(Math.random()-.5)*.8,vy:burst?-2-Math.random()*3:(heartP?-.5-Math.random()*1.1:.5+Math.random()*1),
+   col:cols[(Math.random()*cols.length)|0],r:Math.random()*6,vr:(Math.random()-.5)*.04,t:0,life:burst?90:9999,ph:Math.random()*6});
+}
+var still=matchMedia('(prefers-reduced-motion:reduce)').matches;
+function loop(){
+  x.clearRect(0,0,W,H);
+  if(items.length<55&&Math.random()<.18)spawn();
+  for(var i=items.length-1;i>=0;i--){
+    var o=items[i];o.t++;o.ph+=.03;o.x+=o.vx+Math.sin(o.ph)*.5;o.y+=o.vy;o.r+=o.vr;
+    if(o.life<9999)o.vy+=.03;
+    var a=o.life<9999?Math.max(0,1-o.t/o.life):.85;
+    (o.h?heart:petal)(o.x,o.y,o.s,o.col,a,o.h?Math.sin(o.ph)*.3:o.r);
+    if(o.y<-40||o.y>H+40||o.t>o.life)items.splice(i,1);
+  }
+  requestAnimationFrame(loop);
+}
+if(!still)loop();else{for(var k=0;k<14;k++){spawn();items[k].y=Math.random()*H;}x.clearRect(0,0,W,H);items.forEach(function(o){(o.h?heart:petal)(o.x,o.y,o.s,o.col,.8,o.r)})}
+
+function burst(px,py){if(still)return;for(var k=0;k<14;k++)spawn(true,px,py)}
+addEventListener('pointerdown',function(e){burst(e.clientX,e.clientY)});
+
+var btn=document.getElementById('open'),L=document.getElementById('letter');
+btn.addEventListener('click',function(){
+  btn.style.display='none';document.getElementById('sub').style.display='none';
+  L.style.display='block';
+  var ps=L.querySelectorAll('p');
+  ps.forEach(function(p,i){setTimeout(function(){p.classList.add('on');if(!still)burst(W/2,H*.4)},i*(still?0:2200)+300)});
+});
+})();
+</script>
+</body>
+</html>
